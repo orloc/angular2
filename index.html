@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" xmlns:br="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="utf-8">
+    <title>Angular P2</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="node_modules/reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/reveal.js/css/theme/night.css" id="theme">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="css/highlightStyle1.css">
+    <style>
+    </style>
+</head>
+
+<body>
+<div class="reveal">
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+        <section>
+            <section>
+                <h1>Goals </h1>
+                <ul class="small">
+                    <li>Context / Contrast</li>
+                    <li>How JS got here</li>
+                    <li>General "how it works"</li>
+                    <li>Data Binding - <b>$scope</b></li>
+                    <li>Events - <b>$digest</b> / <b>$compile</b> - <b>$watch</b> - <b>$apply</b></li>
+                    <li>App Dev</li>
+                </ul>
+            </section>
+        </section>
+        <section>
+            <section>
+                <h2>Evolution</h2>
+                <ul>
+                    <li>Plain old JS - pre-jquery</li>
+                    <li>Jquery - 2006</li>
+                    <li>Backbone - 2010</li>
+                    <li>Angular - 2010</li>
+                    <li>Knockout - 2010</li>
+                    <li>Web Component RFC - 2011</li>
+                    <li>Polymer - 2013</li>
+                    <li>React - 2013</li>
+                </ul>
+            </section>
+            <section>
+                <h2>The olden days</h2>
+                <pre>
+                    <code data-trim>
+'use strict';
+
+$(document).ready(function() {
+    var $table = $('#data-table');
+    var data = window.data;
+
+    addData(data.apiData, $table);
+
+    $('#more').click(function(e){
+        e.preventDefault();
+        addData(data.moreData, $table);
+    });
+
+});
+
+function addData(data, $target){
+    $.each(data, function(k, d) {
+        var html = "<tr>" +
+            "<td>" + d.name + "</td>" +
+            "<td>" + d.order_id + "</td>" +
+            "<td>" + d.item + "</td>" +
+            "</tr>";
+
+        $target.find('tbody').append(html);
+    });
+}
+                    </code>
+                </pre>
+                <p>This is a simple example - imagine getting into complex updates / mutations / lazy loading images or other dynamic content.</p>
+                <a href="https://plnkr.co/edit/mWTK0CuMcdsL5FgOD9kv?p=info">Demo</a>
+            </section>
+            <section>
+                <h2>Angular</h2>
+                <p>Removes the need for any manual "stringing together" between data -> view</p>
+                <a href="https://plnkr.co/edit/6K7um80v7i0cLu6VWU4I?p=info">Demo</a>
+            </section>
+        </section>
+        <section>
+            <h2>Terms</h2>
+            <a href="https://docs.angularjs.org/guide/concepts">From the horses mouth</a>
+        </section>
+        <section>
+            <h2>Magic</h2>
+            <p class="small">Magic's just science that we don't understand yet - Arthur C. Clarke</p>
+            <div class="col-xs-6">
+                <ul>
+                    <li>Page Loads</li>
+                    <li>Angular library is initialized</li>
+                    <li>Angular parses dom for its entry point (<b>ng-app</b>)</li>
+                </ul>
+            </div>
+            <div class="col-xs-6">
+                <ul>
+                    <li>Angular <b>$compile</b>s bound elements and initializes their <b>$scope</b>s and in doing so automatically attaches <b>$watch</b>ers</li>
+                    <li>You application is now running and responding to change.</li>
+                </ul>
+            </div>
+        </section>
+        <section>
+            <section>
+                <h2>Data Binding</h2>
+                <p>When we bind a DOM element to <b>$scope</b> with <b>ng-bind</b> or otherwise we are implicitly triggering a few things to happen.</p>
+                <p>When Angular parses this bound element it will automatically add a <b>$watch</b>er which will sync data between the $scope and the element's content.</p>
+                <p class="text-center"><a href="https://github.com/angular/angular.js/blob/v1.4.x/src/ng/directive/ngBind.js">Let's look</a></p>
+            </section>
+            <section>
+                <h2>$scope</h2>
+                <p>Think about scope as literally a mini "data bank" for each element that has a scope.</p>
+                <p>It is figuratively each <b>$compile</b>d DOM elements memory bank.</p>
+            </section>
+        </section>
+        <section>
+            <section>
+                <h1>Events</h1>
+                <p>A "vanilla" browser running Javascript exposes the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event">event API </a></p>
+                <hr>
+                <pre>
+                    <code>
+var div = document.getElementById("clickDiv");
+div.addEventListener("click",
+  function(evt) {
+    console.log("evt", evt);
+  });
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h2>Events Extended</h2>
+                <p>Angular refers to its event loops as the <b>$digest</b> - or the Angular Context.  <br>A digest cycle refers to one iteration over the set of registered events.</p>
+                <h4>Parts</h4>
+                <p><b>$watch</b> list</p>
+                <p><b>$evalAsync</b> list</p>
+            </section>
+            <section>
+                <h2>$watch & $evalAsync</h2>
+                <div class="col-xs-6">
+                    <h5>$watch</h5>
+                    <p>Registers a listener which fires when the <b>watchExpression</b> changes. Standard behaviour as we saw above</p>
+                </div>
+                <div class="col-xs-6">
+                    <h5>$evalAsync</h5>
+                    <p>Same as $watch EXCEPT - this makes no guarentee about the time of execution and is processed separetly by Angular</p>
+                    <ul class="small">
+                        <li>
+                            it will execute after the function that scheduled the evaluation (preferably before DOM rendering).
+                        </li>
+                        <li>
+                            at least one $digest cycle will be performed after expression execution.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <section>
+                <h2>$digest / $compile</h2>
+                <div class="col-xs-6">
+                    <p><b>$digest</b> cycles can be triggered from inside any scoped object.</p>
+                    <p>When a digest cycle is invoked it will go through all registered watches for its current and any child scopes. If the <b>dirtyChecking</b> test fails the callback is invoked and the DOM repainted</p>
+                </div>
+                <div class="col-xs-6">
+                    <p><b>$compile</b> is used to parse and transform a HTML string or DOM element into a template function.</p>
+                    <p>This template function can then be used to link the scope ( model ) to the template ( view )</p>
+                </div>
+            </section>
+            <section>
+                <h2>$apply</h2>
+                <p>When the world around Angular changes - we need to let it know.</p>
+                <p><a>Example</a></p>
+            </section>
+            <section>
+                <h2>Real World</h2>
+                link to FEU angular functions - examine what they do
+                <br>
+                look at example of how we use it and understand WHY we need to use $apply
+            </section>
+        </section>
+        <section>
+            <h2>Resources</h2>
+            <p>fill in application dev resources / links and get rolling</p>
+        </section>
+    </div>
+</div>
+
+<script src="node_modules/reveal.js/lib/js/head.min.js"></script>
+<script src="node_modules/reveal.js/js/reveal.js"></script>
+
+<script>
+    // More info https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        dependencies: [
+            { src: 'node_modules/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+            { src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+    });
+    // More info https://github.com/hakimel/reveal.js#dependencies
+
+</script>
+</body>
+</html>
